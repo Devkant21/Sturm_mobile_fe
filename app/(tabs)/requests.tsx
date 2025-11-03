@@ -4,9 +4,11 @@ import {
   // FontAwesome5,
   MaterialIcons,
 } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   RefreshControl,
   ScrollView,
   Text,
@@ -44,6 +46,8 @@ const formatTime = (isoString: string) => {
 };
 
 export default function Requests() {
+  const router = useRouter();
+
   const { token } = useAuthStore();
   const [requests, setRequests] = useState<MoveRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -147,55 +151,56 @@ export default function Requests() {
         </Text>
 
         {requests.map((req) => (
-          <View
+          <Pressable
             key={req.id}
-            className="bg-white p-6 rounded-3xl shadow-md mb-4"
-            style={{ shadowOpacity: 0.1, shadowRadius: 8 }}
+            onPress={() => router.push(`/request/process/${req.id}`)}
+           
+            android_ripple={{ color: "#f5d2cb" }}
           >
-            {/* Pickup & Dropoff */}
-            <View className="flex-row items-center mb-2">
-              <Entypo name="location-pin" size={20} color="#f88379" />
-              <Text className="ml-2 font-bold text-[#5b2417]">
-                {req.pickup} → {req.dropoff}
-              </Text>
-            </View>
-
-            {/* Phone */}
-            {/* <View className="flex-row items-center mb-1">
-              <FontAwesome5 name="phone" size={16} color="#4b5563" />
-              <Text className="ml-2 text-gray-600">{req.phone}</Text>
-            </View> */}
-
-            {/* Date & Time */}
-            <View className="flex-row items-center mb-1">
-              <MaterialIcons name="date-range" size={16} color="#4b5563" />
-              <Text className="ml-2 text-gray-600">
-                {formatDate(req.move_datetime)}
-              </Text>
-              <MaterialIcons
-                name="access-time"
-                size={16}
-                color="#4b5563"
-                style={{ marginLeft: 16 }}
-              />
-              <Text className="ml-2 text-gray-600">
-                {formatTime(req.move_datetime)}
-              </Text>
-            </View>
-
-            {/* Status Badge */}
             <View
-              className="mt-2 px-3 py-1 rounded-full self-start"
-              style={{ backgroundColor: getStatusColor(req.status) + "33" }}
+              key={req.id}
+              className="bg-white p-6 rounded-3xl shadow-md mb-4"
+              style={{ shadowOpacity: 0.1, shadowRadius: 8 }}
             >
-              <Text
-                className="font-semibold text-sm"
-                style={{ color: getStatusColor(req.status) }}
+              {/* Pickup & Dropoff */}
+              <View className="flex-row items-center mb-2">
+                <Entypo name="location-pin" size={20} color="#f88379" />
+                <Text className="ml-2 font-bold text-[#5b2417]">
+                  {req.pickup} → {req.dropoff}
+                </Text>
+              </View>
+
+              {/* Date & Time */}
+              <View className="flex-row items-center mb-1">
+                <MaterialIcons name="date-range" size={16} color="#4b5563" />
+                <Text className="ml-2 text-gray-600">
+                  {formatDate(req.move_datetime)}
+                </Text>
+                <MaterialIcons
+                  name="access-time"
+                  size={16}
+                  color="#4b5563"
+                  style={{ marginLeft: 16 }}
+                />
+                <Text className="ml-2 text-gray-600">
+                  {formatTime(req.move_datetime)}
+                </Text>
+              </View>
+
+              {/* Status Badge */}
+              <View
+                className="mt-2 px-3 py-1 rounded-full self-start"
+                style={{ backgroundColor: getStatusColor(req.status) + "33" }}
               >
-                {req.status.toUpperCase()}
-              </Text>
+                <Text
+                  className="font-semibold text-sm"
+                  style={{ color: getStatusColor(req.status) }}
+                >
+                  {req.status.toUpperCase()}
+                </Text>
+              </View>
             </View>
-          </View>
+          </Pressable>
         ))}
       </ScrollView>
     </SafeAreaView>
