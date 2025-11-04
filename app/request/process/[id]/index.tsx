@@ -40,10 +40,33 @@ export default function SingleProcessDetail() {
   const [location, setLocation] = useState<DriverLocation | null>(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("Location permission denied");
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      setUserCoords({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+      });
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!userCoords) return;
+    fetchDriverLocation();
+  }, [userCoords]);
+
   const fetchDriverLocation = async () => {
+    if (!userCoords) return;
+
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/user/client/${data.id}/track-driver`,
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/user/client/${data.id}/track-driver?lat=${userCoords.latitude}&lng=${userCoords.longitude}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -82,8 +105,10 @@ export default function SingleProcessDetail() {
     }
   };
 
+  console.log("Sending coords to backend:", userCoords);
+
   useEffect(() => {
-    fetchDriverLocation();
+    // fetchDriverLocation();
 
     (async () => {
       const [pickupLoc, dropoffLoc] = await Promise.all([
@@ -97,7 +122,7 @@ export default function SingleProcessDetail() {
 
     const interval = setInterval(fetchDriverLocation, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [userCoords]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#f5f4ee] px-4 py-4">
