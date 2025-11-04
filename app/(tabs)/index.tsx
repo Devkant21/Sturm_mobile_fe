@@ -16,15 +16,26 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const MOVEMENT_OPTIONS = [
+  "Home Move",
+  "Office Move",
+  "Apartment / Flat Move",
+  "Relocation",
+  "Others",
+];
+
 export default function Landing() {
   const { user, token } = useAuthStore();
 
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
   const [contactNumber, setContactNumber] = useState("");
+  const [movementType, setMovementType] = useState<string | null>(null);
+  const [customMovement, setCustomMovement] = useState("");
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
+  const [showMovementModal, setShowMovementModal] = useState(false);
 
   const [errors, setErrors] = useState({
     pickup: "",
@@ -33,6 +44,7 @@ export default function Landing() {
     name: "",
     email: "",
     contactNumber: "",
+    movementType: "",
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -78,6 +90,11 @@ export default function Landing() {
       email: !user?.email ? "Email is required" : "",
       contactNumber:
         contactNumber.trim() === "" ? "Contact number is required" : "",
+      movementType:
+        !movementType ||
+        (movementType === "Others" && customMovement.trim() === "")
+          ? "Movement type is required"
+          : "",
     };
 
     setErrors(newErrors);
@@ -97,6 +114,9 @@ export default function Landing() {
 
     setLoading(true);
 
+    const finalMovementType =
+      movementType === "Others" ? customMovement : movementType;
+
     const move_datetime = new Date(
       selectedDate!.getFullYear(),
       selectedDate!.getMonth(),
@@ -112,6 +132,7 @@ export default function Landing() {
       phone: contactNumber,
       email: user?.email || "",
       name: user?.name || "",
+      movementType: finalMovementType,
     };
 
     try {
@@ -195,6 +216,35 @@ export default function Landing() {
           <Text className="text-red-500 mb-2">{errors.contactNumber}</Text>
         ) : null}
 
+        {/* Movement Type */}
+        <View className="mb-4">
+          <Text className="font-semibold mb-1 text-[#5b2417]">
+            Movement Type
+          </Text>
+
+          <TouchableOpacity
+            className="bg-white border border-gray-300 px-4 py-3 rounded-md"
+            onPress={() => setShowMovementModal(true)}
+          >
+            <Text className="text-gray-700">
+              {movementType || "Select movement type"}
+            </Text>
+          </TouchableOpacity>
+
+          {errors.movementType ? (
+            <Text className="text-red-500 mt-1">{errors.movementType}</Text>
+          ) : null}
+
+          {movementType === "Others" && (
+            <InputField
+              label="Specify Movement"
+              placeholder="Enter movement type"
+              value={customMovement}
+              onChangeText={setCustomMovement}
+            />
+          )}
+        </View>
+
         {/* Date & Time Picker */}
         <TouchableOpacity
           className="bg-[#5b2417] px-4 py-3 rounded-md mb-6 mt-4"
@@ -239,6 +289,39 @@ export default function Landing() {
           onExit={handleExitApp}
         />
       </ScrollView>
+      {showMovementModal && (
+        <View className="absolute inset-0 bg-black/30 justify-center items-center">
+          <View className="bg-white w-[85%] rounded-xl p-5 shadow-lg">
+            <Text className="text-lg font-semibold text-center text-[#5b2417] mb-4">
+              Select Movement Type
+            </Text>
+
+            {MOVEMENT_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option}
+                onPress={() => {
+                  setMovementType(option);
+                  setShowMovementModal(false);
+                }}
+                className="py-3 rounded-md mb-2 border border-[#e5d2cb] active:opacity-70"
+              >
+                <Text className="text-center text-[#5b2417] font-medium">
+                  {option}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              onPress={() => setShowMovementModal(false)}
+              className="py-3 mt-1 rounded-md active:opacity-70"
+            >
+              <Text className="text-center text-gray-500 font-medium">
+                Cancel
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
