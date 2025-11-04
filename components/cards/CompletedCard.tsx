@@ -1,6 +1,9 @@
 import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 // import { useRouter } from "expo-router";
 import { View, Text } from "react-native";
+import { useFare } from "@/hooks/useFareTrip";
+import { useEffect, useState } from "react";
+import { formatDuration } from "@/utils/formatDuration";
 
 type Completed = {
   id: string;
@@ -9,6 +12,9 @@ type Completed = {
   dropoff: string;
   //   status: "pending" | "accepted" | "scheduled" | "completed";
   status: string;
+  fare?: number;
+  distance?: string;
+  duration?: string;
 };
 
 type CompletedCardProps = {
@@ -17,6 +23,29 @@ type CompletedCardProps = {
 
 export default function CompletedCard({ data }: CompletedCardProps) {
   //   const router = useRouter();
+  const { calculateFare, loading } = useFare();
+
+  const [fare, setFare] = useState<number | null>(data.fare ?? null);
+  const [distance, setDistance] = useState<string | null>(
+    data.distance ?? null
+  );
+  const [duration, setDuration] = useState<string | null>(
+    data.duration ?? null
+  );
+
+  useEffect(() => {
+    if (fare !== null) return;
+
+    async function fetchFare() {
+      const result = await calculateFare(data.pickup, data.dropoff);
+      if (!result) return;
+      setFare(result.fare);
+      setDistance(result.distance);
+      setDuration(result.duration);
+    }
+
+    fetchFare();
+  }, [data.pickup, data.dropoff, calculateFare, fare]);
 
   return (
     // <Pressable
@@ -54,6 +83,21 @@ export default function CompletedCard({ data }: CompletedCardProps) {
           <Text className="text-xs text-[#2d150f] mt-0.5">{data.dropoff}</Text>
         </View>
       </View>
+
+      {(fare !== null || loading) && (
+        <View className="mt-2">
+          <Text className="text-sm font-semibold text-[#171717]">
+            Final Fare
+          </Text>
+          <Text className="text-xs text-[#2d150f] mt-0.5">
+            {loading
+              ? "Calculating..."
+              : `₹${fare} • ${distance ?? ""} • ${
+                  duration ? formatDuration(duration) : ""
+                }`}
+          </Text>
+        </View>
+      )}
     </View>
     // </Pressable>
   );

@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFare } from "@/hooks/useFareTrip";
 
 const MOVEMENT_OPTIONS = [
   "Home Move",
@@ -37,6 +38,11 @@ export default function Landing() {
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
   const [showMovementModal, setShowMovementModal] = useState(false);
 
+  const { calculateFare, loading: fareLoading } = useFare();
+  const [fare, setFare] = useState<number | null>(null);
+  const [distance, setDistance] = useState<string | null>(null);
+  const [duration, setDuration] = useState<string | null>(null);
+
   const [errors, setErrors] = useState({
     pickup: "",
     dropoff: "",
@@ -52,33 +58,53 @@ export default function Landing() {
 
   const [loading, setLoading] = useState(false);
 
-  const handleExitApp = () => {
-    setShowExitModal(false);
-
-    if (Platform.OS === "android") {
-      BackHandler.exitApp();
-    }
-  };
-
   useEffect(() => {
-    if (Platform.OS === "android") {
-      const backAction = () => {
-        if (showModal) {
-          setShowModal(false);
-          return true;
-        }
-        setShowExitModal(true);
-        return true;
-      };
+    async function getFare() {
+      if (!pickup || !dropoff) {
+        setFare(null);
+        setDistance(null);
+        setDuration(null);
+        return;
+      }
 
-      const backHandler = BackHandler.addEventListener(
-        "hardwareBackPress",
-        backAction
-      );
-
-      return () => backHandler.remove();
+      const result = await calculateFare(pickup, dropoff);
+      if (result) {
+        setFare(result.fare);
+        setDistance(result.distance);
+        setDuration(result.duration);
+      }
     }
-  }, [showModal]);
+
+    getFare();
+  }, [pickup, dropoff]);
+
+  // const handleExitApp = () => {
+  //   setShowExitModal(false);
+
+  //   if (Platform.OS === "android") {
+  //     BackHandler.exitApp();
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (Platform.OS === "android") {
+  //     const backAction = () => {
+  //       if (showModal) {
+  //         setShowModal(false);
+  //         return true;
+  //       }
+  //       setShowExitModal(true);
+  //       return true;
+  //     };
+
+  //     const backHandler = BackHandler.addEventListener(
+  //       "hardwareBackPress",
+  //       backAction
+  //     );
+
+  //     return () => backHandler.remove();
+  //   }
+  // }, [showModal]);
 
   const validateFields = () => {
     const newErrors = {
@@ -245,6 +271,32 @@ export default function Landing() {
           )}
         </View>
 
+        <View className="mb-4">
+          {fareLoading ? (
+            <Text className="text-gray-500">Calculating fare...</Text>
+          ) : fare ? (
+            <View className="bg-white p-4 rounded-md border border-gray-200">
+              <Text className="text-[#5b2417] font-semibold text-lg">
+                Estimated Fare: ₹{fare}
+              </Text>
+              {distance && duration && (
+                <Text className="text-gray-600">
+                  {distance} • {duration}
+                </Text>
+              )}
+              <Text className="text-xs text-gray-500 mt-1">
+                Final fare may vary depending on load and conditions
+              </Text>
+            </View>
+          ) : pickup && dropoff ? (
+            <Text className="text-gray-500">No fare available</Text>
+          ) : (
+            <Text className="text-gray-400">
+              Enter pickup & dropoff to see fare
+            </Text>
+          )}
+        </View>
+
         {/* Date & Time Picker */}
         <TouchableOpacity
           className="bg-[#5b2417] px-4 py-3 rounded-md mb-6 mt-4"
@@ -283,11 +335,11 @@ export default function Landing() {
           onSelectTime={setSelectedTime}
         />
 
-        <ExitConfirmationModal
+        {/* <ExitConfirmationModal
           visible={showExitModal}
           onClose={() => setShowExitModal(false)}
           onExit={handleExitApp}
-        />
+        /> */}
       </ScrollView>
       {showMovementModal && (
         <View className="absolute inset-0 bg-black/30 justify-center items-center">
