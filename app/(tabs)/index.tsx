@@ -1,21 +1,19 @@
-import ExitConfirmationModal from "@/components/modal/ExitConfirmationModal";
 import DateTimeModal from "@/components/ui/DateTimeModal";
 import InputField from "@/components/ui/InputField";
 import LocationInput from "@/components/ui/LocationInput";
+import { useFare } from "@/hooks/useFareTrip";
 import { useAuthStore } from "@/store/authStore";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  BackHandler,
-  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFare } from "@/hooks/useFareTrip";
+
 
 const MOVEMENT_OPTIONS = [
   "Home Move",
@@ -199,13 +197,12 @@ export default function Landing() {
       <StatusBar style="dark" />
       <ScrollView className="flex-1 px-6 py-8">
         {/* Header / Title */}
-        <View className="mb-8">
-          <Text className="text-3xl font-bold text-[#5b2417] mb-2">
-            Book now
+        <View className="mb-6">
+          <Text className="text-2xl font-bold text-gray-900">
+            Book a Move
           </Text>
-          <Text className="text-gray-600 text-base">
-            Enter your pickup and dropoff locations and select a convenient time
-            to book.
+          <Text className="text-gray-500 mt-1">
+            Fast, reliable relocation service
           </Text>
         </View>
 

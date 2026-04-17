@@ -21,14 +21,14 @@ export default function LandingScreen() {
       <View className="flex-1 items-center justify-center px-6">
         {/* Logo */}
         <Image
-          source={require("../assets/images/orbits.png")}
+          source={require("../assets/images/sturmlogo.png")}
           className="w-64 h-64 mb-6"
           resizeMode="contain"
         />
 
         {/* App Name */}
         <Text className="text-4xl font-black text-[#5b2417] mt-4">
-          Orbits Movers
+          STURM
         </Text>
 
         {/* Short tagline */}

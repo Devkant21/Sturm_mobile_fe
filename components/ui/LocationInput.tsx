@@ -76,9 +76,15 @@ export default function LocationInput({
       <Text className="mb-2 text-base font-medium text-[#5b2417]">{label}</Text>
 
       {/* 💡 CONTAINER FOR INPUT AND BUTTON */}
-      <View className="w-full flex-row items-center rounded-lg border border-gray-300 bg-white pr-2">
+        <View className="w-full flex-row items-center rounded-lg border border-gray-300 bg-white pl-2 pr-2">
+            <Ionicons
+              name={label.includes("Pickup") ? "radio-button-on" : "location"}
+              size={18}
+              color={label.includes("Pickup") ? "#16a34a" : "#dc2626"}
+            />
+
         <TextInput
-          className="flex-1 px-4 py-3 bg-transparent" 
+          className="flex-1 px-2 py-3 bg-transparent" 
           placeholder={placeholder}
           placeholderTextColor="#999"
           value={value}

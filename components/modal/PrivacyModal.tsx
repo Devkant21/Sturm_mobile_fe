@@ -22,6 +22,8 @@ export default function PrivacyModal({ visible, onClose }: PrivacyModalProps) {
   const handleGAOptOut = () =>
     Linking.openURL("https://tools.google.com/dlpage/gaoptout");
 
+  const LAST_UPDATED = "April 2026";
+
   return (
     <Modal
       visible={visible}
@@ -36,7 +38,7 @@ export default function PrivacyModal({ visible, onClose }: PrivacyModalProps) {
 
             <Text className="mb-4">
               Your privacy is important to us. This Privacy Policy explains how{" "}
-              <Text className="font-bold">Orbits Movers</Text> collects, uses,
+              <Text className="font-bold">Sturm</Text> collects, uses,
               and protects your information when you use our services. By
               accessing or using our app, you agree to the practices described
               here.
@@ -170,11 +172,7 @@ export default function PrivacyModal({ visible, onClose }: PrivacyModalProps) {
             </View>
 
             <Text className="text-xs text-gray-500 mt-4">
-              Last updated:{" "}
-              {new Date().toLocaleDateString("en-IN", {
-                month: "long",
-                year: "numeric",
-              })}
+              Last updated: {LAST_UPDATED}
             </Text>
           </ScrollView>
 

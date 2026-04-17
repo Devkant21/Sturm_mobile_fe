@@ -2,7 +2,7 @@ import "dotenv/config";
 
 export default {
   expo: {
-    name: "Orbits Movers",
+    name: "Sturm",
     slug: "orbitsmovers-user",
     version: "1.0.0",
     orientation: "portrait",
@@ -11,7 +11,7 @@ export default {
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/orbits.png",
+      image: "./assets/images/sturmlogo.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
