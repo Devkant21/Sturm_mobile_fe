@@ -21,6 +21,8 @@ export default function ConditionsModal({
     Linking.openURL("mailto:orbitsmovers@gmail.com?subject=Terms%20Inquiry");
   const handlePhonePress = () => Linking.openURL("tel:+03614057886");
 
+  const LAST_UPDATED = "April 2026";
+
   return (
     <Modal
       visible={visible}
@@ -36,7 +38,7 @@ export default function ConditionsModal({
             </Text>
 
             <Text className="mb-4">
-              Welcome to <Text className="font-bold">Orbits Movers</Text>. By
+              Welcome to <Text className="font-bold">Sturm</Text>. By
               using our app and services, you agree to comply with the following
               terms and conditions.
             </Text>
@@ -56,7 +58,7 @@ export default function ConditionsModal({
               </Text>
               <Text>
                 Our services are provided in accordance with applicable laws.
-                Orbits Movers reserves the right to refuse service or terminate
+                Sturm reserves the right to refuse service or terminate
                 accounts at our discretion.
               </Text>
             </View>
@@ -67,7 +69,7 @@ export default function ConditionsModal({
               </Text>
               <Text>
                 All content in this app, including text, graphics, logos, and
-                images, is the property of Orbits Movers or its licensors.
+                images, is the property of Sturm or its licensors.
                 Unauthorized use is prohibited.
               </Text>
             </View>
@@ -77,7 +79,7 @@ export default function ConditionsModal({
                 4. Limitation of Liability
               </Text>
               <Text>
-                Orbits Movers is not liable for any damages arising from the use
+                Sturm is not liable for any damages arising from the use
                 or inability to use the app or its services. Use at your own
                 risk.
               </Text>
@@ -127,11 +129,7 @@ export default function ConditionsModal({
             </View>
 
             <Text className="text-xs text-gray-500 mt-4">
-              Last updated:{" "}
-              {new Date().toLocaleDateString("en-IN", {
-                month: "long",
-                year: "numeric",
-              })}
+              Last updated: {LAST_UPDATED}
             </Text>
           </ScrollView>
 

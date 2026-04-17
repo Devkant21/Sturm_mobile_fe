@@ -112,9 +112,14 @@ export default function HomeScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#f5f4ee]">
       <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-3xl font-black text-[#5b2417] mb-10">
-          Orbits Movers
-        </Text>
+        <Image
+          source={require("../assets/images/sturmlogo.png")}
+          style={{ width: 140, height: 120, resizeMode: "contain", marginBottom: 16 }}
+        />
+
+        {/* <Text className="text-3xl font-black text-[#5b2417] mb-10">
+          STURM
+        </Text> */}
 
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <TouchableOpacity
@@ -150,7 +155,7 @@ export default function HomeScreen() {
 
         <View className="w-full max-w-[320px] mt-8">
           <Text className="text-center text-sm leading-tight text-black/70">
-            By signing in, you agree to Orbits Movers and Packers{" "}
+            By signing in, you agree to Sturm{" "}
             <Text
               className="underline text-[#5b2417]/80"
               onPress={() => setIsConditionsVisible(true)}

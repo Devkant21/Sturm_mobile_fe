@@ -79,7 +79,7 @@ export default function ProfileScreen() {
             App Version: v{version}
           </Text>
           <Text className="text-xs text-gray-400 text-center mt-1">
-            © 2025 Orbits Movers
+            © 2026 Sturm
           </Text>
         </View>
       </ScrollView>
