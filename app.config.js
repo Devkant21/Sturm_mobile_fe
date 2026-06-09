@@ -3,11 +3,11 @@ import "dotenv/config";
 export default {
   expo: {
     name: "Sturm",
-    slug: "orbitsmovers-user",
+    slug: "sturm-user",
+    scheme: "sturmuser",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/applogo.png",
-    scheme: "orbitsmoversuser",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
@@ -17,6 +17,7 @@ export default {
     },
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "com.sturm.customer",
       config: {
         googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       },
@@ -33,7 +34,7 @@ export default {
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
-      package: "com.orbits42.orbitsmoversuser",
+      package: "com.sturm.customer",
     },
     web: {
       bundler: "metro",
@@ -56,7 +57,7 @@ export default {
     extra: {
       router: {},
       eas: {
-        projectId: "84dac177-fd28-40c2-97df-ff48e907ccd4",
+        projectId: "bcde9bf8-378e-4c85-a455-7e7c780289dd",
       },
     },
   },

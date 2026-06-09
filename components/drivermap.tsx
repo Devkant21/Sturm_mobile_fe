@@ -52,11 +52,11 @@ export default function DriverMap({
           },
           (newLoc) => {
             setDriverLocation(newLoc);
-          }
+          },
         );
       } catch (err) {
         setErrorMsg(
-          "Location services are disabled. Please enable GPS / High accuracy."
+          "Location services are disabled. Please enable GPS / High accuracy.",
         );
       }
     };
@@ -114,7 +114,7 @@ export default function DriverMap({
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         },
-        600
+        600,
       );
     }
   }, [driverCoords]);
@@ -168,58 +168,55 @@ export default function DriverMap({
           </View>
         </View>
       )}
-      {driverLocation && (
-        <MapView
-          ref={mapRef}
-          provider={PROVIDER_GOOGLE}
-          style={{ flex: 1 }}
-          initialRegion={region}
-          showsUserLocation
-          followsUserLocation
-          showsMyLocationButton
-          mapType="standard"
-          userInterfaceStyle="light"
-        >
-          {routeCoords.length > 0 && (
-            <Polyline
-              coordinates={routeCoords}
-              strokeWidth={4}
-              strokeColor="#2E6CF6"
-            />
-          )}
-          {pickupCoords && (
-            <Marker coordinate={pickupCoords} title="Pickup" pinColor="green" />
-          )}
-          {dropoffCoords && (
-            <Marker
-              coordinate={dropoffCoords}
-              title="Drop-off"
-              pinColor="red"
-            />
-          )}
-          {driverCoords && (
-            <Marker coordinate={driverCoords}>
-              <View
-                style={{
-                  backgroundColor: "white",
-                  paddingVertical: 10,
-                  paddingHorizontal: 14,
-                  borderRadius: 24,
-                  shadowColor: "#000",
-                  shadowOpacity: 0.25,
-                  shadowOffset: { width: 0, height: 3 },
-                  shadowRadius: 4,
-                  elevation: 6,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Text style={{ fontSize: 24 }}>🚚</Text>
-              </View>
-            </Marker>
-          )}
-        </MapView>
-      )}
+      {/* {driverLocation && (
+      )} */}
+      {/* <MapView
+        ref={mapRef}
+        provider={PROVIDER_GOOGLE}
+        style={{ flex: 1 }}
+        initialRegion={region}
+        showsUserLocation
+        followsUserLocation
+        showsMyLocationButton
+        mapType="standard"
+        userInterfaceStyle="light"
+      >
+        {routeCoords.length > 0 && (
+          <Polyline
+            coordinates={routeCoords}
+            strokeWidth={4}
+            strokeColor="#2E6CF6"
+          />
+        )}
+        {pickupCoords && (
+          <Marker coordinate={pickupCoords} title="Pickup" pinColor="green" />
+        )}
+        {dropoffCoords && (
+          <Marker coordinate={dropoffCoords} title="Drop-off" pinColor="red" />
+        )}
+        {driverCoords && (
+          <Marker coordinate={driverCoords}>
+            <View
+              style={{
+                backgroundColor: "white",
+                paddingVertical: 10,
+                paddingHorizontal: 14,
+                borderRadius: 24,
+                shadowColor: "#000",
+                shadowOpacity: 0.25,
+                shadowOffset: { width: 0, height: 3 },
+                shadowRadius: 4,
+                elevation: 6,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={{ fontSize: 24 }}>🚚</Text>
+            </View>
+          </Marker>
+        )}
+      </MapView> */}
+      
     </>
   );
 }

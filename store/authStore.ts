@@ -2,17 +2,26 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface AuthUser {
+export interface AuthUser {
+  id: number;
   email: string;
-  name?: string | null;
-  picture?: string | null;
+
+  fullName: string | null;
+  phoneNumber: string | null;
+  profileImage: string | null;
+
+  profileStatus: string;
 }
 
 interface AuthState {
   user: AuthUser | null;
   token: string | null;
   isLoggedIn: boolean;
+
   setAuth: (user: AuthUser, token: string) => void;
+
+  updateUser: (user: Partial<AuthUser>) => void;
+
   clearUser: () => void;
 }
 
@@ -23,9 +32,29 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isLoggedIn: false,
 
-      setAuth: (user, token) => set({ user, token, isLoggedIn: true }),
+      setAuth: (user, token) =>
+        set({
+          user,
+          token,
+          isLoggedIn: true,
+        }),
 
-      clearUser: () => set({ user: null, token: null, isLoggedIn: false }),
+      updateUser: (updates) =>
+        set((state) => ({
+          user: state.user
+            ? {
+                ...state.user,
+                ...updates,
+              }
+            : null,
+        })),
+
+      clearUser: () =>
+        set({
+          user: null,
+          token: null,
+          isLoggedIn: false,
+        }),
     }),
     {
       name: "auth-storage-user",
@@ -34,13 +63,15 @@ export const useAuthStore = create<AuthState>()(
           const value = await AsyncStorage.getItem(name);
           return value ? JSON.parse(value) : null;
         },
+
         setItem: async (name, value) => {
           await AsyncStorage.setItem(name, JSON.stringify(value));
         },
+
         removeItem: async (name) => {
           await AsyncStorage.removeItem(name);
         },
       },
-    }
-  )
+    },
+  ),
 );

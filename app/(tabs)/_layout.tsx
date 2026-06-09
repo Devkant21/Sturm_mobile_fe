@@ -5,37 +5,71 @@ export default function HomeLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#5b2417",
-        tabBarInactiveTintColor: "gray",
+        headerShown: false,
+
+        tabBarActiveTintColor: "#16a34a",
+        tabBarInactiveTintColor: "#6b7280",
+
+        tabBarStyle: {
+          height: 72,
+
+          borderTopWidth: 1,
+          borderTopColor: "#e5e7eb",
+
+          borderLeftWidth: 1,
+          borderRightWidth: 1,
+          borderColor: "#e5e7eb",
+
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+
+          backgroundColor: "#ffffff",
+
+          paddingTop: 8,
+          paddingBottom: 10,
+        },
+
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "600",
+          marginTop: 4,
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="home" size={28} color={color} />
           ),
         }}
       />
+
       <Tabs.Screen
         name="requests"
         options={{
-          title: "History",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="history" size={size} color={color} />
+          title: "Bookings",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="clipboard-text-outline"
+              size={28}
+              color={color}
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" size={size} color={color} />
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="account-outline"
+              size={28}
+              color={color}
+            />
           ),
         }}
       />
