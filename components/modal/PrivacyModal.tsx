@@ -16,13 +16,13 @@ interface PrivacyModalProps {
 export default function PrivacyModal({ visible, onClose }: PrivacyModalProps) {
   const handleEmailPress = () =>
     Linking.openURL(
-      "mailto:orbitsmovers@gmail.com?subject=Privacy%20Policy%20Query"
+      "mailto:support@sturm.express?subject=Privacy%20Policy%20Query",
     );
-  const handlePhonePress = () => Linking.openURL("tel:03614057886");
+  const handlePhonePress = () => Linking.openURL("tel:+919401271725");
   const handleGAOptOut = () =>
     Linking.openURL("https://tools.google.com/dlpage/gaoptout");
 
-  const LAST_UPDATED = "April 2026";
+  const LAST_UPDATED = "June 2026";
 
   return (
     <Modal
@@ -38,10 +38,9 @@ export default function PrivacyModal({ visible, onClose }: PrivacyModalProps) {
 
             <Text className="mb-4">
               Your privacy is important to us. This Privacy Policy explains how{" "}
-              <Text className="font-bold">Sturm</Text> collects, uses,
-              and protects your information when you use our services. By
-              accessing or using our app, you agree to the practices described
-              here.
+              <Text className="font-bold">Sturm</Text> collects, uses, and
+              protects your information when you use our services. By accessing
+              or using our app, you agree to the practices described here.
             </Text>
 
             <View className="mb-4">

@@ -1,8 +1,13 @@
+import DateTimeSelector from "@/components/cards/DateTimeSelector";
+import HomeHeader from "@/components/cards/HomeHeader";
+import LocationCard from "@/components/cards/LocationCard";
+import ServiceTypeSelector from "@/components/cards/ServiceTypeSelector";
+import VehicleSelector from "@/components/cards/VehicleSelector";
 import DateTimeModal from "@/components/ui/DateTimeModal";
 import InputField from "@/components/ui/InputField";
-import LocationInput from "@/components/ui/LocationInput";
 import { useFare } from "@/hooks/useFareTrip";
 import { useAuthStore } from "@/store/authStore";
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import {
@@ -10,36 +15,30 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-
-const MOVEMENT_OPTIONS = [
-  "Home Move",
-  "Office Move",
-  "Apartment / Flat Move",
-  "Relocation",
-  "Others",
-];
 
 export default function Landing() {
   const { user, token } = useAuthStore();
 
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [movementType, setMovementType] = useState<string | null>(null);
-  const [customMovement, setCustomMovement] = useState("");
+  const [contactNumber, setContactNumber] = useState(user?.phoneNumber ?? "");
+  const [serviceType, setServiceType] = useState<"home" | "items">("home");
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
-  const [showMovementModal, setShowMovementModal] = useState(false);
 
   const { calculateFare, loading: fareLoading } = useFare();
   const [fare, setFare] = useState<number | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
   const [duration, setDuration] = useState<string | null>(null);
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setSelectedTime(null);
+  };
 
   const [errors, setErrors] = useState({
     pickup: "",
@@ -51,10 +50,42 @@ export default function Landing() {
     movementType: "",
   });
 
+  const [selectedVehicle, setSelectedVehicle] = useState("pickup");
+
   const [showModal, setShowModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
 
+  const [modalStep, setModalStep] = useState<"date" | "time">("date");
+
   const [loading, setLoading] = useState(false);
+
+  const goToEstimate = () => {
+    if (!validateFields()) return;
+
+    if (!selectedDate || !selectedTime) return;
+
+    const move_datetime = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      selectedTime.getHours(),
+      selectedTime.getMinutes(),
+    ).toISOString();
+
+    router.push({
+      pathname: "/estimate",
+      params: {
+        pickup,
+        dropoff,
+        move_datetime,
+        phone: contactNumber,
+        email: user?.email ?? "",
+        name: user?.fullName ?? "",
+        vehicle: selectedVehicle,
+        serviceType,
+      },
+    });
+  };
 
   useEffect(() => {
     async function getFare() {
@@ -76,60 +107,27 @@ export default function Landing() {
     getFare();
   }, [pickup, dropoff]);
 
-  // const handleExitApp = () => {
-  //   setShowExitModal(false);
-
-  //   if (Platform.OS === "android") {
-  //     BackHandler.exitApp();
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (Platform.OS === "android") {
-  //     const backAction = () => {
-  //       if (showModal) {
-  //         setShowModal(false);
-  //         return true;
-  //       }
-  //       setShowExitModal(true);
-  //       return true;
-  //     };
-
-  //     const backHandler = BackHandler.addEventListener(
-  //       "hardwareBackPress",
-  //       backAction
-  //     );
-
-  //     return () => backHandler.remove();
-  //   }
-  // }, [showModal]);
-
   const validateFields = () => {
     const newErrors = {
       pickup: pickup.trim() === "" ? "Pickup location is required" : "",
       dropoff: dropoff.trim() === "" ? "Dropoff location is required" : "",
       dateTime:
         !selectedDate || !selectedTime ? "Pickup date & time are required" : "",
-      name: !user?.name ? "Name is required" : "",
+      name: !user?.fullName ? "Name is required" : "",
       email: !user?.email ? "Email is required" : "",
       contactNumber:
-        contactNumber.trim() === "" ? "Contact number is required" : "",
-      movementType:
-        !movementType ||
-        (movementType === "Others" && customMovement.trim() === "")
-          ? "Movement type is required"
+        contactNumber.trim().length !== 10
+          ? "Valid contact number is required"
           : "",
+      movementType: "",
     };
 
     setErrors(newErrors);
 
-    const hasError = Object.values(newErrors).some((e) => e !== "");
-    if (hasError) {
-      console.log("Validation failed:", newErrors);
-    }
-
-    return !hasError;
+    return !Object.values(newErrors).some(Boolean);
   };
+
+  const firstError = Object.values(errors).find(Boolean);
 
   const sendMoveRequest = async () => {
     if (!validateFields()) return;
@@ -138,15 +136,12 @@ export default function Landing() {
 
     setLoading(true);
 
-    const finalMovementType =
-      movementType === "Others" ? customMovement : movementType;
-
     const move_datetime = new Date(
       selectedDate!.getFullYear(),
       selectedDate!.getMonth(),
       selectedDate!.getDate(),
       selectedTime!.getHours(),
-      selectedTime!.getMinutes()
+      selectedTime!.getMinutes(),
     ).toISOString();
 
     const payload = {
@@ -154,14 +149,13 @@ export default function Landing() {
       dropoff,
       move_datetime,
       phone: contactNumber,
-      email: user?.email || "",
-      name: user?.name || "",
-      movementType: finalMovementType,
+      email: user?.email ?? "",
+      name: user?.fullName ?? "",
     };
 
     try {
       const res = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/send-quote`,
+        `${process.env.EXPO_PUBLIC_WEBSITE_URL}/api/send-quote`,
         {
           method: "POST",
           headers: {
@@ -169,7 +163,7 @@ export default function Landing() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const data = await res.json();
@@ -193,82 +187,103 @@ export default function Landing() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#f5f4ee]">
+    <SafeAreaView className="flex-1 bg-[#F8F8F8]">
       <StatusBar style="dark" />
-      <ScrollView className="flex-1 px-6 py-8">
+      <ScrollView
+        className="flex-1 px-6 pt-4 pb-32"
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Header / Title */}
-        <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900">
-            Book a Move
-          </Text>
-          <Text className="text-gray-500 mt-1">
-            Fast, reliable relocation service
-          </Text>
+        <HomeHeader
+          userName={user?.fullName?.split(" ")[0] ?? "User"}
+          onNotifications={() => router.push("/notifications")}
+        />
+
+        <View className="mt-2">
+          <LocationCard
+            pickup={pickup}
+            dropoff={dropoff}
+            onPickupChange={setPickup}
+            onDropoffChange={setDropoff}
+            pickupError={errors.pickup}
+            dropoffError={errors.dropoff}
+          />
         </View>
 
-        <LocationInput
-          label="Pickup Location"
-          placeholder="Enter pickup"
-          value={pickup}
-          onChangeText={setPickup}
-          onSelectSuggestion={setPickup}
-        />
-        {errors.pickup ? (
-          <Text className="text-red-500 mb-2">{errors.pickup}</Text>
-        ) : null}
-        <LocationInput
-          label="Dropoff Location"
-          placeholder="Enter dropoff"
-          value={dropoff}
-          onChangeText={setDropoff}
-          onSelectSuggestion={setDropoff}
-        />
-        {errors.dropoff ? (
-          <Text className="text-red-500 mb-2">{errors.dropoff}</Text>
-        ) : null}
+        <View className="mt-3">
+          <VehicleSelector
+            selectedVehicle={selectedVehicle}
+            onSelect={setSelectedVehicle}
+          />
+        </View>
 
-        <InputField
-          label="Contact Number"
-          placeholder="Enter your phone number"
-          value={contactNumber}
-          onChangeText={setContactNumber}
-          keyboardType="numeric"
-          maxLength={10}
-        />
-        {errors.contactNumber ? (
-          <Text className="text-red-500 mb-2">{errors.contactNumber}</Text>
-        ) : null}
+        <View className="mt-3">
+          <ServiceTypeSelector
+            selectedService={serviceType}
+            onSelect={setServiceType}
+          />
+        </View>
 
-        {/* Movement Type */}
-        <View className="mb-4">
-          <Text className="font-semibold mb-1 text-[#5b2417]">
-            Movement Type
+        {/* Date & Time Picker */}
+        <View className="mt-3">
+          <DateTimeSelector
+            selectedDate={selectedDate}
+            selectedTime={selectedTime}
+            onDatePress={() => {
+              setModalStep("date");
+              setShowModal(true);
+            }}
+            onTimePress={() => {
+              setModalStep("time");
+              setShowModal(true);
+            }}
+          />
+          {errors.dateTime ? (
+            <Text className="text-red-500 text-xs mt-2 ml-1">
+              {errors.dateTime}
+            </Text>
+          ) : null}
+        </View>
+
+        <View className="mt-3">
+          <Text className="text-[#6B7280] text-sm font-medium mb-2">
+            Contact Number
           </Text>
 
-          <TouchableOpacity
-            className="bg-white border border-gray-300 px-4 py-3 rounded-md"
-            onPress={() => setShowMovementModal(true)}
+          <View
+            className={`flex-row items-center rounded-2xl border bg-white px-4 py-4 ${
+              errors.contactNumber ? "border-red-400" : "border-gray-200"
+            }`}
           >
-            <Text className="text-gray-700">
-              {movementType || "Select movement type"}
-            </Text>
-          </TouchableOpacity>
+            <View className="mr-3">
+              <Text className="text-base font-medium text-gray-700">+91</Text>
+            </View>
 
-          {errors.movementType ? (
-            <Text className="text-red-500 mt-1">{errors.movementType}</Text>
-          ) : null}
+            <View className="w-px h-6 bg-gray-200 mr-3" />
 
-          {movementType === "Others" && (
             <InputField
-              label="Specify Movement"
-              placeholder="Enter movement type"
-              value={customMovement}
-              onChangeText={setCustomMovement}
+              placeholder="Enter mobile number"
+              value={contactNumber}
+              onChangeText={setContactNumber}
+              keyboardType="number-pad"
+              maxLength={10}
+              containerClassName="flex-1"
+              inputClassName="text-base"
             />
+          </View>
+
+          {errors.contactNumber ? (
+            <Text className="text-red-500 text-xs mt-2 ml-1">
+              {errors.contactNumber}
+            </Text>
+          ) : (
+            <Text className="text-xs text-gray-500 mt-2 ml-1">
+              We'll send booking updates to this number
+            </Text>
           )}
         </View>
 
-        <View className="mb-4">
+        {/* <View className="mb-4">
           {fareLoading ? (
             <Text className="text-gray-500">Calculating fare...</Text>
           ) : fare ? (
@@ -292,85 +307,38 @@ export default function Landing() {
               Enter pickup & dropoff to see fare
             </Text>
           )}
-        </View>
+        </View> */}
 
-        {/* Date & Time Picker */}
-        <TouchableOpacity
-          className="bg-[#5b2417] px-4 py-3 rounded-md mb-6 mt-4"
-          onPress={() => setShowModal(true)}
-        >
-          <Text className="text-white text-center">
-            {selectedDate && selectedTime
-              ? `${selectedDate.toDateString()} ${selectedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-              : "Select Pickup Date & Time"}
-          </Text>
-        </TouchableOpacity>
-        {errors.dateTime ? (
-          <Text className="text-red-500 mb-2">{errors.dateTime}</Text>
+        {firstError ? (
+          <View className="mt-4 rounded-xl bg-red-50 border border-red-200 p-3">
+            <Text className="text-red-600 text-sm">{firstError}</Text>
+          </View>
         ) : null}
 
         <TouchableOpacity
-          className="bg-[#f59e0b] px-4 py-3 rounded-md mb-6"
-          onPress={sendMoveRequest}
+          className="mt-6 rounded-2xl bg-green-600 py-4 mb-10"
+          onPress={goToEstimate}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text className="text-white font-semibold text-center">
-              Book Now
+            <Text className="text-white font-semibold text-center text-lg">
+              Get Estimate
             </Text>
           )}
         </TouchableOpacity>
 
         <DateTimeModal
           visible={showModal}
+          step={modalStep}
           onClose={() => setShowModal(false)}
           selectedDate={selectedDate}
           selectedTime={selectedTime}
-          onSelectDate={setSelectedDate}
+          onSelectDate={handleDateSelect}
           onSelectTime={setSelectedTime}
         />
-
-        {/* <ExitConfirmationModal
-          visible={showExitModal}
-          onClose={() => setShowExitModal(false)}
-          onExit={handleExitApp}
-        /> */}
       </ScrollView>
-      {showMovementModal && (
-        <View className="absolute inset-0 bg-black/30 justify-center items-center">
-          <View className="bg-white w-[85%] rounded-xl p-5 shadow-lg">
-            <Text className="text-lg font-semibold text-center text-[#5b2417] mb-4">
-              Select Movement Type
-            </Text>
-
-            {MOVEMENT_OPTIONS.map((option) => (
-              <TouchableOpacity
-                key={option}
-                onPress={() => {
-                  setMovementType(option);
-                  setShowMovementModal(false);
-                }}
-                className="py-3 rounded-md mb-2 border border-[#e5d2cb] active:opacity-70"
-              >
-                <Text className="text-center text-[#5b2417] font-medium">
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-
-            <TouchableOpacity
-              onPress={() => setShowMovementModal(false)}
-              className="py-3 mt-1 rounded-md active:opacity-70"
-            >
-              <Text className="text-center text-gray-500 font-medium">
-                Cancel
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
     </SafeAreaView>
   );
 }
