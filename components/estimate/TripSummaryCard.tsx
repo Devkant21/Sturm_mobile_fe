@@ -6,12 +6,16 @@ interface TripSummaryCardProps {
   pickup: string;
   dropoff: string;
   moveDateTime: string;
+  distance?: string;
+  duration?: string;
 }
 
 export default function TripSummaryCard({
   pickup,
   dropoff,
   moveDateTime,
+   distance = "Calculating...",
+  duration = "Calculating...",
 }: TripSummaryCardProps) {
   const formattedDate = new Date(moveDateTime).toLocaleString("en-IN", {
     day: "numeric",
@@ -87,7 +91,7 @@ export default function TripSummaryCard({
             <Text className="text-sm text-zinc-500">Distance</Text>
           </View>
           <Text className="text-base font-semibold text-zinc-900">
-            Calculating...
+           {distance}
           </Text>
         </View>
 
@@ -99,7 +103,7 @@ export default function TripSummaryCard({
             <Text className="text-sm text-zinc-500">Estimated Time</Text>
           </View>
           <Text className="text-base font-semibold text-zinc-900">
-            Calculating...
+             {duration}
           </Text>
         </View>
 
