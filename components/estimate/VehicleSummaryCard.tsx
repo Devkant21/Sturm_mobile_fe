@@ -83,14 +83,6 @@ export default function VehicleSummaryCard({
             {vehicle.service}
           </Text>
         </View>
-
-        <View className="items-end">
-          <Text className="text-xl font-bold text-zinc-900">
-            {vehicle.fare}
-          </Text>
-
-          <Text className="text-sm text-zinc-500">Base Fare</Text>
-        </View>
       </View>
     </View>
   );

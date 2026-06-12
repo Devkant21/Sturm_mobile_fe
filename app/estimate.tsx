@@ -7,17 +7,25 @@ import PaymentMethodCard from "@/components/estimate/PaymentMethodCard";
 import PriceEstimateCard from "@/components/estimate/PriceEstimateCard";
 import TripSummaryCard from "@/components/estimate/TripSummaryCard";
 import VehicleSummaryCard from "@/components/estimate/VehicleSummaryCard";
+import BookingConfirmModal from "@/components/estimate/BookingConfirmModal";
 import { useAuthStore } from "@/store/authStore";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useFare } from "@/hooks/useFareTrip";
 
 type PaymentMethod = "upi" | "cash";
 
+type FareData = {
+  distance: string;
+  duration: string;
+  fare: number;
+};
+
 export default function EstimatePage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
-  const { token } = useAuthStore();
-
   const [loading, setLoading] = useState(false);
+
+  const { token } = useAuthStore();
 
   const {
     pickup,
@@ -39,7 +47,35 @@ export default function EstimatePage() {
     serviceType: string;
   }>();
 
+  const { calculateFare, loading: fareLoading } = useFare();
+  const [fareData, setFareData] = useState<FareData | null>(null);
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  useEffect(() => {
+    async function fetchFare() {
+      if (!pickup || !dropoff) return;
+
+      const result = await calculateFare(pickup, dropoff);
+
+      console.log("fare result:", result);
+
+      if (result) {
+        setFareData(result);
+      } else {
+        Alert.alert("Fare Error", "Unable to calculate trip fare.");
+      }
+    }
+
+    fetchFare();
+  }, [pickup, dropoff]);
+
   const submitEstimateRequest = async () => {
+    if (!fareData) {
+      Alert.alert("Please wait", "Fare is still being calculated.");
+      return;
+    }
+
     setLoading(true);
 
     const movementType =
@@ -53,6 +89,9 @@ export default function EstimatePage() {
       email,
       name,
       movementType,
+      fare: fareData.fare,
+      distance: fareData.distance,
+      duration: fareData.duration,
     };
 
     try {
@@ -111,10 +150,15 @@ export default function EstimatePage() {
             pickup={pickup}
             dropoff={dropoff}
             moveDateTime={move_datetime}
+            distance={fareData?.distance}
+            duration={fareData?.duration}
           />
 
           <VehicleSummaryCard vehicleId={vehicle} />
-          <PriceEstimateCard total="Calculating..." />
+
+          <PriceEstimateCard
+            total={fareData ? `₹${fareData.fare}` : "Calculating..."}
+          />
 
           <PaymentMethodCard
             selectedMethod={paymentMethod}
@@ -123,9 +167,21 @@ export default function EstimatePage() {
         </ScrollView>
 
         <EstimateFooter
-          total="₹950"
-          loading={loading}
-          onPress={submitEstimateRequest}
+          total={fareData ? `₹${fareData.fare}` : "Calculating..."}
+          loading={loading || fareLoading}
+          onPress={() => setShowConfirmModal(true)}
+        />
+
+        <BookingConfirmModal
+          visible={showConfirmModal}
+          fare={fareData ? `₹${fareData.fare}` : "Calculating..."}
+          pickup={pickup}
+          dropoff={dropoff}
+          onClose={() => setShowConfirmModal(false)}
+          onConfirm={() => {
+            setShowConfirmModal(false);
+            submitEstimateRequest();
+          }}
         />
       </View>
     </SafeAreaView>

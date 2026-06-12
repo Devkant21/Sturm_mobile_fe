@@ -1,3 +1,5 @@
+import * as Location from "expo-location";
+
 import DateTimeSelector from "@/components/cards/DateTimeSelector";
 import HomeHeader from "@/components/cards/HomeHeader";
 import LocationCard from "@/components/cards/LocationCard";
@@ -5,7 +7,6 @@ import ServiceTypeSelector from "@/components/cards/ServiceTypeSelector";
 import VehicleSelector from "@/components/cards/VehicleSelector";
 import DateTimeModal from "@/components/ui/DateTimeModal";
 import InputField from "@/components/ui/InputField";
-import { useFare } from "@/hooks/useFareTrip";
 import { useAuthStore } from "@/store/authStore";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -20,7 +21,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Landing() {
-  const { user, token } = useAuthStore();
+  const { user } = useAuthStore();
 
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
@@ -29,11 +30,6 @@ export default function Landing() {
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
-
-  const { calculateFare, loading: fareLoading } = useFare();
-  const [fare, setFare] = useState<number | null>(null);
-  const [distance, setDistance] = useState<string | null>(null);
-  const [duration, setDuration] = useState<string | null>(null);
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
@@ -88,24 +84,40 @@ export default function Landing() {
   };
 
   useEffect(() => {
-    async function getFare() {
-      if (!pickup || !dropoff) {
-        setFare(null);
-        setDistance(null);
-        setDuration(null);
-        return;
-      }
+    async function detectCurrentLocation() {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
 
-      const result = await calculateFare(pickup, dropoff);
-      if (result) {
-        setFare(result.fare);
-        setDistance(result.distance);
-        setDuration(result.duration);
+        if (status !== "granted") {
+          console.log("Location permission denied");
+          return;
+        }
+
+        const location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+
+        const places = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+
+        if (!places.length) return;
+
+        const place = places[0];
+
+        const address = [place.name, place.street, place.city, place.region]
+          .filter(Boolean)
+          .join(", ");
+
+        setPickup(address);
+      } catch (error) {
+        console.error("Location error:", error);
       }
     }
 
-    getFare();
-  }, [pickup, dropoff]);
+    detectCurrentLocation();
+  }, []);
 
   const validateFields = () => {
     const newErrors = {
@@ -128,63 +140,6 @@ export default function Landing() {
   };
 
   const firstError = Object.values(errors).find(Boolean);
-
-  const sendMoveRequest = async () => {
-    if (!validateFields()) return;
-
-    if (!selectedDate || !selectedTime) return;
-
-    setLoading(true);
-
-    const move_datetime = new Date(
-      selectedDate!.getFullYear(),
-      selectedDate!.getMonth(),
-      selectedDate!.getDate(),
-      selectedTime!.getHours(),
-      selectedTime!.getMinutes(),
-    ).toISOString();
-
-    const payload = {
-      pickup,
-      dropoff,
-      move_datetime,
-      phone: contactNumber,
-      email: user?.email ?? "",
-      name: user?.fullName ?? "",
-    };
-
-    try {
-      const res = await fetch(
-        `${process.env.EXPO_PUBLIC_WEBSITE_URL}/api/send-quote`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        },
-      );
-
-      const data = await res.json();
-      if (!data.success) {
-        alert(data.error || "Something went wrong");
-        return;
-      }
-
-      alert("Request submitted successfully! Check your email.");
-      setPickup("");
-      setDropoff("");
-      setContactNumber("");
-      setSelectedDate(null);
-      setSelectedTime(null);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to submit request. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8F8F8]">
@@ -282,32 +237,6 @@ export default function Landing() {
             </Text>
           )}
         </View>
-
-        {/* <View className="mb-4">
-          {fareLoading ? (
-            <Text className="text-gray-500">Calculating fare...</Text>
-          ) : fare ? (
-            <View className="bg-white p-4 rounded-md border border-gray-200">
-              <Text className="text-[#5b2417] font-semibold text-lg">
-                Estimated Fare: ₹{fare}
-              </Text>
-              {distance && duration && (
-                <Text className="text-gray-600">
-                  {distance} • {duration}
-                </Text>
-              )}
-              <Text className="text-xs text-gray-500 mt-1">
-                Final fare may vary depending on load and conditions
-              </Text>
-            </View>
-          ) : pickup && dropoff ? (
-            <Text className="text-gray-500">No fare available</Text>
-          ) : (
-            <Text className="text-gray-400">
-              Enter pickup & dropoff to see fare
-            </Text>
-          )}
-        </View> */}
 
         {firstError ? (
           <View className="mt-4 rounded-xl bg-red-50 border border-red-200 p-3">
