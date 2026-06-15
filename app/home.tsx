@@ -8,16 +8,18 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
   Image,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 import ConditionsModal from "@/components/modal/ConditionsModal";
 import PrivacyModal from "@/components/modal/PrivacyModal";
+import { StatusBar } from "expo-status-bar";
 
 interface BackendUser {
   id: number;
@@ -51,8 +53,6 @@ export default function HomeScreen() {
   const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
   const [isConditionsVisible, setIsConditionsVisible] = useState(false);
 
-  const scaleAnim = useState(new Animated.Value(1))[0];
-
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
@@ -68,21 +68,6 @@ export default function HomeScreen() {
       router.replace("/(tabs)");
     }
   }, [isLoggedIn, user, router]);
-
-  const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.96,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-      friction: 3,
-    }).start();
-  };
 
   const handleGoogleSignIn = async () => {
     if (loading) return;
@@ -196,73 +181,105 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#f5f4ee]">
-      <View className="flex-1 items-center justify-center px-6">
-        <Image
-          source={require("../assets/images/sturmlogo.png")}
-          style={{
-            width: 140,
-            height: 120,
-            resizeMode: "contain",
-            marginBottom: 16,
-          }}
-        />
+      <StatusBar style="dark" />
+      <View className="flex-1 px-6">
+        {/* Background blobs */}
+        <View className="absolute -top-10 -right-16 h-56 w-56 rounded-full bg-[#eaded2]" />
+        <View className="absolute bottom-24 -left-20 h-72 w-72 rounded-full bg-[#efe6dd]" />
 
-        <Animated.View
-          style={{
-            transform: [{ scale: scaleAnim }],
-          }}
-        >
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            onPress={handleGoogleSignIn}
-            disabled={loading}
+        {/* Hero */}
+        <View className="flex-1 items-center justify-center">
+          <Animated.View entering={FadeIn.duration(700)}>
+            <Image
+              source={require("../assets/images/sturmlogo.png")}
+              style={{
+                width: 160,
+                height: 140,
+                resizeMode: "contain",
+              }}
+            />
+          </Animated.View>
+
+          <Animated.Text
+            entering={FadeInDown.delay(350).duration(600)}
+            className="mt-3 text-center text-lg font-semibold text-[#5b2417]/85"
           >
-            {loading ? (
-              <View
-                style={{
-                  width: 200,
-                  height: 50,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: "#fff",
-                  borderRadius: 100,
-                  borderWidth: 1,
-                  borderColor: "#ccc",
-                }}
-              >
-                <ActivityIndicator size="small" color="#4285F4" />
-              </View>
-            ) : (
-              <Image
-                source={require("../assets/images/googleSignIn.png")}
-                style={{
-                  width: 280,
-                  height: 50,
-                  resizeMode: "contain",
-                }}
-              />
-            )}
-          </TouchableOpacity>
-        </Animated.View>
+            Courier & moving made simple
+          </Animated.Text>
 
-        {error && (
-          <Text className="mt-4 text-center text-red-600">{error}</Text>
-        )}
+          <Animated.Text
+            entering={FadeInDown.delay(500).duration(600)}
+            className="mt-3 px-8 text-center text-sm leading-6 text-black/55"
+          >
+            Same day delivery • Verified drivers • Real-time tracking
+          </Animated.Text>
 
-        <View className="mt-8 w-full max-w-[320px]">
-          <Text className="text-center text-sm leading-tight text-black/70">
+          {/* Trust badges */}
+          <Animated.View
+            entering={FadeInDown.delay(700).duration(600)}
+            className="mt-8 flex-row gap-3"
+          >
+            <View className="rounded-full bg-white px-4 py-2 shadow-sm">
+              <Text className="text-xs font-semibold text-[#5b2417]">
+                Fast Delivery
+              </Text>
+            </View>
+
+            <View className="rounded-full bg-white px-4 py-2 shadow-sm">
+              <Text className="text-xs font-semibold text-[#5b2417]">
+                Secure
+              </Text>
+            </View>
+          </Animated.View>
+        </View>
+
+        {/* CTA */}
+        <View className="pb-8 w-full items-center">
+          <Animated.View entering={FadeInDown.delay(900).duration(600)}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={handleGoogleSignIn}
+              disabled={loading}
+            >
+              {loading ? (
+                <View className="h-[50px] w-[280px] items-center justify-center rounded-full border border-gray-300 bg-white">
+                  <ActivityIndicator size="small" color="#4285F4" />
+                  <Text className="mt-2 text-sm text-black/60">
+                    Signing you in...
+                  </Text>
+                </View>
+              ) : (
+                <Image
+                  source={require("../assets/images/googleSignIn.png")}
+                  className="h-[50px] w-[280px]"
+                  resizeMode="contain"
+                />
+              )}
+            </TouchableOpacity>
+          </Animated.View>
+
+          {error && (
+            <Animated.View
+              entering={FadeIn.duration(250)}
+              className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3"
+            >
+              <Text className="text-center text-sm font-medium text-red-600">
+                {error}
+              </Text>
+            </Animated.View>
+          )}
+
+          <Text className="mt-6 px-4 text-center text-xs leading-5 text-black/50">
             By signing in, you agree to Sturm{" "}
             <Text
-              className="text-[#5b2417]/80 underline"
+              className="font-semibold text-[#5b2417]"
               onPress={() => setIsConditionsVisible(true)}
             >
               Conditions of Use
             </Text>{" "}
             and{" "}
             <Text
-              className="text-[#5b2417]/80 underline"
+              className="font-semibold text-[#5b2417]"
               onPress={() => setIsPrivacyVisible(true)}
             >
               Privacy Notice

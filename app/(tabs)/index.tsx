@@ -1,5 +1,5 @@
 import * as Location from "expo-location";
-
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import DateTimeSelector from "@/components/cards/DateTimeSelector";
 import HomeHeader from "@/components/cards/HomeHeader";
 import LocationCard from "@/components/cards/LocationCard";
@@ -24,6 +24,7 @@ export default function Landing() {
   const { user } = useAuthStore();
 
   const [pickup, setPickup] = useState("");
+  const [detectingLocation, setDetectingLocation] = useState(true);
   const [dropoff, setDropoff] = useState("");
   const [contactNumber, setContactNumber] = useState(user?.phoneNumber ?? "");
   const [serviceType, setServiceType] = useState<"home" | "items">("home");
@@ -86,10 +87,12 @@ export default function Landing() {
   useEffect(() => {
     async function detectCurrentLocation() {
       try {
+        setDetectingLocation(true);
+
         const { status } = await Location.requestForegroundPermissionsAsync();
 
         if (status !== "granted") {
-          console.log("Location permission denied");
+          setDetectingLocation(false);
           return;
         }
 
@@ -102,7 +105,10 @@ export default function Landing() {
           longitude: location.coords.longitude,
         });
 
-        if (!places.length) return;
+        if (!places.length) {
+          setDetectingLocation(false);
+          return;
+        }
 
         const place = places[0];
 
@@ -112,7 +118,9 @@ export default function Landing() {
 
         setPickup(address);
       } catch (error) {
-        console.error("Location error:", error);
+        console.error(error);
+      } finally {
+        setDetectingLocation(false);
       }
     }
 
@@ -142,121 +150,200 @@ export default function Landing() {
   const firstError = Object.values(errors).find(Boolean);
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F8F8]">
+    <SafeAreaView className="flex-1 bg-[#F6F7F9]">
       <StatusBar style="dark" />
-      <ScrollView
-        className="flex-1 px-6 pt-4 pb-32"
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Header / Title */}
-        <HomeHeader
-          userName={user?.fullName?.split(" ")[0] ?? "User"}
-          onNotifications={() => router.push("/notifications")}
-        />
 
-        <View className="mt-2">
-          <LocationCard
-            pickup={pickup}
-            dropoff={dropoff}
-            onPickupChange={setPickup}
-            onDropoffChange={setDropoff}
-            pickupError={errors.pickup}
-            dropoffError={errors.dropoff}
-          />
-        </View>
+      <View className="flex-1">
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            paddingHorizontal: 24,
+            paddingTop: 16,
+            paddingBottom: 160,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <Animated.View entering={FadeInDown.duration(450)}>
+            <HomeHeader
+              userName={user?.fullName?.split(" ")[0] ?? "User"}
+              onNotifications={() => router.push("/notifications")}
+            />
+          </Animated.View>
 
-        <View className="mt-3">
-          <VehicleSelector
-            selectedVehicle={selectedVehicle}
-            onSelect={setSelectedVehicle}
-          />
-        </View>
-
-        <View className="mt-3">
-          <ServiceTypeSelector
-            selectedService={serviceType}
-            onSelect={setServiceType}
-          />
-        </View>
-
-        {/* Date & Time Picker */}
-        <View className="mt-3">
-          <DateTimeSelector
-            selectedDate={selectedDate}
-            selectedTime={selectedTime}
-            onDatePress={() => {
-              setModalStep("date");
-              setShowModal(true);
-            }}
-            onTimePress={() => {
-              setModalStep("time");
-              setShowModal(true);
-            }}
-          />
-          {errors.dateTime ? (
-            <Text className="text-red-500 text-xs mt-2 ml-1">
-              {errors.dateTime}
-            </Text>
-          ) : null}
-        </View>
-
-        <View className="mt-3">
-          <Text className="text-[#6B7280] text-sm font-medium mb-2">
-            Contact Number
-          </Text>
-
-          <View
-            className={`flex-row items-center rounded-2xl border bg-white px-4 py-4 ${
-              errors.contactNumber ? "border-red-400" : "border-gray-200"
-            }`}
+          {/* Location */}
+          <Animated.View
+            entering={FadeInDown.duration(450).delay(100)}
+            className="mt-4"
           >
-            <View className="mr-3">
-              <Text className="text-base font-medium text-gray-700">+91</Text>
+            <LocationCard
+              pickup={pickup}
+              detectingLocation={detectingLocation}
+              dropoff={dropoff}
+              onPickupChange={(value) => {
+                setPickup(value);
+
+                if (value.trim()) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    pickup: "",
+                  }));
+                }
+              }}
+              onDropoffChange={(value) => {
+                setDropoff(value);
+
+                if (value.trim()) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    dropoff: "",
+                  }));
+                }
+              }}
+              pickupError={errors.pickup}
+              dropoffError={errors.dropoff}
+            />
+          </Animated.View>
+
+          {/* Vehicle */}
+          <Animated.View
+            entering={FadeInDown.duration(450).delay(180)}
+            className="mt-4"
+          >
+            <VehicleSelector
+              selectedVehicle={selectedVehicle}
+              onSelect={setSelectedVehicle}
+            />
+          </Animated.View>
+
+          {/* Service Type */}
+          <Animated.View
+            entering={FadeInDown.duration(450).delay(260)}
+            className="mt-4"
+          >
+            <ServiceTypeSelector
+              selectedService={serviceType}
+              onSelect={setServiceType}
+            />
+          </Animated.View>
+
+          {/* Date & Time */}
+          <Animated.View
+            entering={FadeInDown.duration(450).delay(340)}
+            className="mt-4"
+          >
+            <DateTimeSelector
+              selectedDate={selectedDate}
+              selectedTime={selectedTime}
+              onDatePress={() => {
+                setModalStep("date");
+                setShowModal(true);
+              }}
+              onTimePress={() => {
+                setModalStep("time");
+                setShowModal(true);
+              }}
+            />
+
+            {errors.dateTime ? (
+              <Text className="ml-1 mt-2 text-xs text-red-500">
+                {errors.dateTime}
+              </Text>
+            ) : null}
+          </Animated.View>
+
+          {/* Contact Number */}
+          <Animated.View
+            entering={FadeInDown.duration(450).delay(420)}
+            className="mt-4"
+          >
+            <Text className="mb-2 text-sm font-medium text-[#6B7280]">
+              Contact Number
+            </Text>
+
+            <View
+              className={`flex-row items-center rounded-2xl border bg-white px-4 py-4 ${
+                errors.contactNumber ? "border-red-400" : "border-gray-200"
+              }`}
+            >
+              <Text className="mr-3 text-base font-medium text-gray-700">
+                +91
+              </Text>
+
+              <View className="mr-3 h-6 w-px bg-gray-200" />
+
+              <InputField
+                placeholder="Enter mobile number"
+                value={contactNumber}
+                onChangeText={(value) => {
+                  setContactNumber(value);
+
+                  if (value.trim().length === 10) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      contactNumber: "",
+                    }));
+                  }
+                }}
+                keyboardType="number-pad"
+                maxLength={10}
+                containerClassName="flex-1"
+                inputClassName="text-base"
+              />
             </View>
 
-            <View className="w-px h-6 bg-gray-200 mr-3" />
+            {errors.contactNumber ? (
+              <Text className="ml-1 mt-2 text-xs text-red-500">
+                {errors.contactNumber}
+              </Text>
+            ) : (
+              <Text className="ml-1 mt-2 text-xs text-gray-500">
+                We'll send booking updates to this number
+              </Text>
+            )}
+          </Animated.View>
+        </ScrollView>
 
-            <InputField
-              placeholder="Enter mobile number"
-              value={contactNumber}
-              onChangeText={setContactNumber}
-              keyboardType="number-pad"
-              maxLength={10}
-              containerClassName="flex-1"
-              inputClassName="text-base"
-            />
-          </View>
-
-          {errors.contactNumber ? (
-            <Text className="text-red-500 text-xs mt-2 ml-1">
-              {errors.contactNumber}
-            </Text>
-          ) : (
-            <Text className="text-xs text-gray-500 mt-2 ml-1">
-              We'll send booking updates to this number
-            </Text>
-          )}
-        </View>
-
-        {firstError ? (
-          <View className="mt-4 rounded-xl bg-red-50 border border-red-200 p-3">
-            <Text className="text-red-600 text-sm">{firstError}</Text>
-          </View>
-        ) : null}
-
-        <TouchableOpacity
-          className="mt-6 rounded-2xl bg-green-600 py-4 mb-10"
-          onPress={goToEstimate}
-          disabled={loading}
+        {/* Sticky Bottom CTA */}
+        <Animated.View
+          entering={FadeInDown.duration(500).delay(500)}
+          className="absolute bottom-0 left-0 right-0 border-t border-gray-100 bg-white px-6 pb-8 pt-4"
         >
-          {loading ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text className="text-white font-semibold text-center text-lg">
-              Get Estimate
-            </Text>
-          )}
-        </TouchableOpacity>
+          {/* Error Card */}
+          {firstError ? (
+            <Animated.View
+              entering={FadeIn.duration(250)}
+              className="mb-2 rounded-2xl border border-red-200 bg-red-50 p-4"
+            >
+              <Text className="text-sm font-medium text-red-600">
+                {firstError}
+              </Text>
+            </Animated.View>
+          ) : null}
+
+          <TouchableOpacity
+            className={`rounded-2xl py-4 ${
+              loading ? "bg-green-500" : "bg-green-600"
+            }`}
+            onPress={goToEstimate}
+            disabled={loading}
+            activeOpacity={0.9}
+          >
+            {loading ? (
+              <View className="flex-row items-center justify-center">
+                <ActivityIndicator size="small" color="#fff" />
+                <Text className="ml-3 text-lg font-semibold text-white">
+                  Calculating...
+                </Text>
+              </View>
+            ) : (
+              <Text className="text-center text-lg font-semibold text-white">
+                Get Estimate
+              </Text>
+            )}
+          </TouchableOpacity>
+        </Animated.View>
 
         <DateTimeModal
           visible={showModal}
@@ -267,7 +354,7 @@ export default function Landing() {
           onSelectDate={handleDateSelect}
           onSelectTime={setSelectedTime}
         />
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
@@ -7,7 +8,6 @@ interface ProfileCardProps {
   phone?: string | null;
   profileImage?: string | null;
   verified?: boolean;
-  onEdit?: () => void;
 }
 
 export default function ProfileCard({
@@ -16,7 +16,6 @@ export default function ProfileCard({
   phone,
   profileImage,
   verified = true,
-  onEdit,
 }: ProfileCardProps) {
   return (
     <View className="mx-4 rounded-3xl border border-zinc-200 bg-white p-4">
@@ -66,17 +65,24 @@ export default function ProfileCard({
           </View>
 
           <TouchableOpacity
-            disabled
-            activeOpacity={1}
-            className="mt-4 flex-row items-center self-start rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3"
+            activeOpacity={0.85}
+            onPress={() => router.push("/(profile)/edit")}
+            className="mt-4 flex-row items-center self-start rounded-2xl border border-green-200 bg-green-50 px-4 py-3"
           >
-            <Ionicons name="create-outline" size={18} color="#9ca3af" />
+            <View className="h-8 w-8 items-center justify-center rounded-full bg-green-600">
+              <Ionicons name="create-outline" size={14} color="white" />
+            </View>
 
-            <Text className="ml-2 font-semibold text-zinc-400">
+            <Text className="ml-3 font-semibold text-green-700">
               Edit Profile
             </Text>
 
-            <Text className="ml-2 text-xs text-zinc-400">(Coming Soon)</Text>
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color="#15803d"
+              style={{ marginLeft: 8 }}
+            />
           </TouchableOpacity>
         </View>
       </View>

@@ -5,6 +5,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 interface LocationCardProps {
   pickup: string;
   dropoff: string;
+  detectingLocation?: boolean;
   onPickupChange: (value: string) => void;
   onDropoffChange: (value: string) => void;
   onSwap?: () => void;
@@ -20,6 +21,7 @@ export default function LocationCard({
   onSwap,
   pickupError,
   dropoffError,
+  detectingLocation,
 }: LocationCardProps) {
   return (
     <View>
@@ -84,6 +86,7 @@ export default function LocationCard({
               onChangeText={onPickupChange}
               onSelectSuggestion={onPickupChange}
               placeholder="Enter pickup location"
+              detectingLocation={detectingLocation}
             />
             {pickupError ? (
               <Text className="text-red-500 text-xs mt-1">{pickupError}</Text>
