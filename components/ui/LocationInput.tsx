@@ -22,6 +22,7 @@ interface LocationInputProps {
   onSelectSuggestion: (suggestion: string) => void;
   onSuggestionsChange?: (hasSuggestions: boolean) => void;
   suggestions?: Prediction[];
+  detectingLocation?: boolean;
 }
 
 export default function LocationInput({
@@ -32,6 +33,7 @@ export default function LocationInput({
   onChangeText,
   onSelectSuggestion,
   onSuggestionsChange,
+  detectingLocation,
   suggestions = [],
 }: LocationInputProps) {
   const [loading, setLoading] = useState(false);
@@ -97,7 +99,9 @@ export default function LocationInput({
         <TextInput
           value={value}
           onChangeText={onChangeText}
-          placeholder={placeholder}
+          placeholder={
+            detectingLocation ? "Detecting current location..." : placeholder
+          }
           placeholderTextColor="#d4d4d8"
           className="flex-1 text-[16px] text-zinc-900 py-0.5"
         />

@@ -54,10 +54,6 @@ export default function PrivacyModal({ visible, onClose }: PrivacyModalProps) {
                   us)
                 </Text>
                 <Text>• Messages or inquiries you send us</Text>
-                <Text>
-                  • Technical info such as IP address, browser/device info, and
-                  pages visited
-                </Text>
               </View>
               <Text className="mt-2">
                 This helps us provide personalized services and improve your
@@ -76,32 +72,6 @@ export default function PrivacyModal({ visible, onClose }: PrivacyModalProps) {
                 <Text>• Improve app functionality and user experience</Text>
                 <Text>• Comply with legal obligations</Text>
               </View>
-            </View>
-
-            <View className="mb-4">
-              <Text className="text-lg font-semibold mb-1">
-                Google Analytics & Cookies
-              </Text>
-              <Text>
-                We use cookies and similar technologies to enhance functionality
-                and improve user experience. Our app uses Google Analytics to
-                understand usage:
-              </Text>
-              <View className="ml-4 space-y-1 mt-1">
-                <Text>• IP address and device/browser information</Text>
-                <Text>• Pages visited and actions taken</Text>
-                <Text>• General location data (city, region, country)</Text>
-              </View>
-              <Text className="mt-2">
-                You can opt out of Google Analytics tracking via the{" "}
-                <Text
-                  className="text-blue-600 underline"
-                  onPress={handleGAOptOut}
-                >
-                  Google Analytics Opt-out
-                </Text>{" "}
-                browser add-on.
-              </Text>
             </View>
 
             <View className="mb-4">

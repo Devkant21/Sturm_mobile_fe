@@ -22,9 +22,6 @@ export default function ProfileScreen() {
           phone={user?.phoneNumber}
           profileImage={user?.profileImage}
           verified={user?.profileStatus === "completed"}
-          onEdit={() => {
-            // edit profile screen later
-          }}
         />
         <SupportLegalCard />
         <AccountCard />
