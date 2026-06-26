@@ -206,53 +206,6 @@ export default function Landing() {
             />
           </Animated.View>
 
-          {/* Vehicle */}
-          <Animated.View
-            entering={FadeInDown.duration(450).delay(180)}
-            className="mt-4"
-          >
-            <VehicleSelector
-              selectedVehicle={selectedVehicle}
-              onSelect={setSelectedVehicle}
-            />
-          </Animated.View>
-
-          {/* Service Type */}
-          <Animated.View
-            entering={FadeInDown.duration(450).delay(260)}
-            className="mt-4"
-          >
-            <ServiceTypeSelector
-              selectedService={serviceType}
-              onSelect={setServiceType}
-            />
-          </Animated.View>
-
-          {/* Date & Time */}
-          <Animated.View
-            entering={FadeInDown.duration(450).delay(340)}
-            className="mt-4"
-          >
-            <DateTimeSelector
-              selectedDate={selectedDate}
-              selectedTime={selectedTime}
-              onDatePress={() => {
-                setModalStep("date");
-                setShowModal(true);
-              }}
-              onTimePress={() => {
-                setModalStep("time");
-                setShowModal(true);
-              }}
-            />
-
-            {errors.dateTime ? (
-              <Text className="ml-1 mt-2 text-xs text-red-500">
-                {errors.dateTime}
-              </Text>
-            ) : null}
-          </Animated.View>
-
           {/* Contact Number */}
           <Animated.View
             entering={FadeInDown.duration(450).delay(420)}
@@ -302,6 +255,53 @@ export default function Landing() {
                 We'll send booking updates to this number
               </Text>
             )}
+          </Animated.View>
+
+          {/* Vehicle */}
+          <Animated.View
+            entering={FadeInDown.duration(450).delay(180)}
+            className="mt-4"
+          >
+            <VehicleSelector
+              selectedVehicle={selectedVehicle}
+              onSelect={setSelectedVehicle}
+            />
+          </Animated.View>
+
+          {/* Service Type */}
+          <Animated.View
+            entering={FadeInDown.duration(450).delay(260)}
+            className="mt-4"
+          >
+            <ServiceTypeSelector
+              selectedService={serviceType}
+              onSelect={setServiceType}
+            />
+          </Animated.View>
+
+          {/* Date & Time */}
+          <Animated.View
+            entering={FadeInDown.duration(450).delay(340)}
+            className="mt-4"
+          >
+            <DateTimeSelector
+              selectedDate={selectedDate}
+              selectedTime={selectedTime}
+              onDatePress={() => {
+                setModalStep("date");
+                setShowModal(true);
+              }}
+              onTimePress={() => {
+                setModalStep("time");
+                setShowModal(true);
+              }}
+            />
+
+            {errors.dateTime ? (
+              <Text className="ml-1 mt-2 text-xs text-red-500">
+                {errors.dateTime}
+              </Text>
+            ) : null}
           </Animated.View>
         </ScrollView>
 

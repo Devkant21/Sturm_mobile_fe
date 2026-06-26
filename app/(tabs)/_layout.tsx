@@ -70,12 +70,20 @@ export default function HomeLayout() {
       <Tabs.Screen
         name="history"
         options={{
+          href: null,
+          
+        }}
+      />
+
+      {/* <Tabs.Screen
+        name="history"
+        options={{
           title: "History",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="history" size={28} color={color} />
           ),
         }}
-      />
+      /> */}
 
       <Tabs.Screen
         name="profile"
