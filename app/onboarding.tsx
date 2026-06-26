@@ -33,14 +33,13 @@ interface CompleteProfileResponse {
 export default function OnboardingScreen() {
   const router = useRouter();
 
-  const { token, setAuth } = useAuthStore();
-  const { clearUser } = useAuthStore();
+  const { token, setAuth, clearUser } = useAuthStore();
 
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState("");
+  // const [otp, setOtp] = useState("");
 
-  const [otpSent, setOtpSent] = useState(false);
+  // const [otpSent, setOtpSent] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
@@ -55,9 +54,9 @@ export default function OnboardingScreen() {
 
     const msg = error.message.toLowerCase();
 
-    if (msg.includes("failed to send otp") || msg.includes("otp")) {
-      return "OTP service is being configured and will be available soon.";
-    }
+    // if (msg.includes("failed to send otp") || msg.includes("otp")) {
+    //   return "OTP service is being configured and will be available soon.";
+    // }
 
     if (msg.includes("network")) {
       return "Network error. Check your internet connection.";
@@ -70,45 +69,45 @@ export default function OnboardingScreen() {
     return error.message;
   }
 
-  const handleSendOtp = async () => {
-    try {
-      setLoading(true);
-      setMessage(null);
+  // const handleSendOtp = async () => {
+  //   try {
+  //     setLoading(true);
+  //     setMessage(null);
 
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/v1/user/send-otp`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            phone_number: phoneNumber,
-          }),
-        },
-      );
+  //     const response = await fetch(
+  //       `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/v1/user/send-otp`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           phone_number: phoneNumber,
+  //         }),
+  //       },
+  //     );
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || "Failed to send OTP");
-      }
+  //     if (!response.ok || !data.success) {
+  //       throw new Error(data.message || "Failed to send OTP");
+  //     }
 
-      setOtpSent(true);
-      setMessage({
-        type: "success",
-        text: "OTP sent successfully to your WhatsApp number.",
-      });
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: getReadableError(error),
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setOtpSent(true);
+  //     setMessage({
+  //       type: "success",
+  //       text: "OTP sent successfully to your WhatsApp number.",
+  //     });
+  //   } catch (error) {
+  //     setMessage({
+  //       type: "error",
+  //       text: getReadableError(error),
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleCompleteProfile = async () => {
     try {
@@ -126,7 +125,7 @@ export default function OnboardingScreen() {
           body: JSON.stringify({
             full_name: fullName,
             phone_number: phoneNumber,
-            otp: Number(otp),
+            // otp: Number(otp),
             profile_image: "",
           }),
         },
@@ -175,12 +174,12 @@ export default function OnboardingScreen() {
     router.replace("/home");
   };
 
-  const canSendOtp = phoneNumber.length === 10 && !loading && !otpSent;
+  // const canSendOtp = phoneNumber.length === 10 && !loading && !otpSent;
 
   const canContinue =
     fullName.trim().length > 0 &&
     phoneNumber.length === 10 &&
-    otp.length === 4 &&
+    // otp.length === 4 &&
     !loading;
 
   return (
@@ -259,14 +258,14 @@ export default function OnboardingScreen() {
             <View>
               <View className="mb-2 flex-row items-center">
                 <Text className="text-sm font-medium text-zinc-600">
-                  WhatsApp Number
+                  Phone Number
                 </Text>
 
-                <View className="ml-2 rounded-full bg-[#25D366]/10 px-2 py-1">
+                {/* <View className="ml-2 rounded-full bg-[#25D366]/10 px-2 py-1">
                   <Text className="text-[10px] font-bold text-[#25D366]">
                     For OTP
                   </Text>
-                </View>
+                </View> */}
               </View>
 
               <View className="flex-row gap-3">
@@ -286,10 +285,10 @@ export default function OnboardingScreen() {
                 />
               </View>
 
-              <Text className="mt-2 text-xs text-zinc-500">
+              {/* <Text className="mt-2 text-xs text-zinc-500">
                 We'll send verification code on WhatsApp
-              </Text>
-              <TouchableOpacity
+              </Text> */}
+              {/* <TouchableOpacity
                 disabled={!canSendOtp}
                 onPress={handleSendOtp}
                 className={`mt-3 h-12 items-center justify-center rounded-2xl border ${
@@ -309,11 +308,11 @@ export default function OnboardingScreen() {
                       ? "OTP Sent"
                       : "Send OTP"}
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             {/* OTP */}
-            {otpSent && (
+            {/* {otpSent && (
               <Animated.View entering={FadeInDown.duration(350)}>
                 <Text className="mb-2 text-sm font-medium text-zinc-600">
                   Enter OTP
@@ -328,7 +327,7 @@ export default function OnboardingScreen() {
                   className="h-14 rounded-2xl border border-zinc-200 bg-white px-4 text-center text-lg tracking-[8px]"
                 />
               </Animated.View>
-            )}
+            )} */}
 
             {/* Message */}
             {message ? (
