@@ -10,11 +10,11 @@ export default function ContactSupportModal({
   visible,
   onClose,
 }: ContactSupportModalProps) {
-  const PHONE_NUMBER = "+91 94012 71725";
+  const PHONE_NUMBER = "+91 99542 05533";
   const EMAIL = "support@sturm.express";
 
   const handleCall = () => {
-    Linking.openURL("tel:+919401271725");
+    Linking.openURL("tel:+919954205533");
   };
 
   const handleEmail = () => {

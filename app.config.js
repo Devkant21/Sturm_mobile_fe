@@ -50,6 +50,7 @@ export default {
           androidGoogleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
         },
       ],
+      "expo-adi-registration",
     ],
     experiments: {
       typedRoutes: true,

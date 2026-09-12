@@ -18,7 +18,7 @@ export default function PrivacyModal({ visible, onClose }: PrivacyModalProps) {
     Linking.openURL(
       "mailto:support@sturm.express?subject=Privacy%20Policy%20Query",
     );
-  const handlePhonePress = () => Linking.openURL("tel:+919401271725");
+  const handlePhonePress = () => Linking.openURL("tel:+919954205533");
   const handleGAOptOut = () =>
     Linking.openURL("https://tools.google.com/dlpage/gaoptout");
 
