@@ -19,7 +19,7 @@ export default function ConditionsModal({
 }: ConditionsModalProps) {
   const handleEmailPress = () =>
     Linking.openURL("mailto:support@sturm.express?subject=Terms%20Inquiry");
-  const handlePhonePress = () => Linking.openURL("tel:+919401271725");
+  const handlePhonePress = () => Linking.openURL("tel:+919954205533");
 
   const LAST_UPDATED = "June 2026";
 
